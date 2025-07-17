@@ -32,5 +32,10 @@ class Downloader:
         self.__root.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}+{x_pos}+{y_pos}")
 
 
+        # Setting the icon of the application
+        icon = tk.PhotoImage(file = "Images/flag.png")
+        self.__root.iconphoto(True,icon)
+
+
         # Starting the windows
         self.__root.mainloop()
