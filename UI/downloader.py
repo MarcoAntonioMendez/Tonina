@@ -1,4 +1,6 @@
 import tkinter as tk
+import subprocess
+import logging
 
 
 WINDOW_WIDTH = 960
@@ -8,6 +10,15 @@ class Downloader:
     def __init__(self):
         # Initializing the root to contain the main frame of the GUI application
         self.__root = tk.Tk()
+
+
+        # Checking if ffmpeg is installed
+        self.__ffmpeg_installed = False
+        try:
+            subprocess.run(['ffmpeg', '-version'], capture_output=True, text=True, check=True)
+            self.__ffmpeg_installed = True
+        except FileNotFoundError:
+            logging.warning("ffmpeg is not installed in this computer, please install ffmpeg.")
 
 
     def start(self):
