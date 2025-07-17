@@ -2,6 +2,7 @@ import tkinter as tk
 import subprocess
 import logging
 
+APPLICATION_NAME = "Toniná"
 
 WINDOW_WIDTH = 960
 WINDOW_HEIGHT = 540
@@ -37,5 +38,22 @@ class Downloader:
         self.__root.iconphoto(True,icon)
 
 
+        # Setting the application name
+        self.__root.title(APPLICATION_NAME)
+
+
+        # Setting the background image of the application
+        background = tk.PhotoImage(file = "Images/background.png")
+        label = tk.Label(self.__root, image=background)
+        label.place(x = 0, y = 0, relwidth = 1, relheight = 1)
+
+
         # Starting the windows
         self.__root.mainloop()
+
+
+
+
+
+
+
