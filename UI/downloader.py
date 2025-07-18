@@ -1,4 +1,5 @@
-import tkinter as tk
+import customtkinter as ctk
+import PIL as pil
 import subprocess
 import logging
 
@@ -13,7 +14,7 @@ FFMPEG_NOT_INSTALLED_MESSAGE = "Sorry, FFMPEG is not installed on your computer 
 class Downloader:
     def __init__(self):
         # Initializing the root to contain the main frame of the GUI application
-        self.__root = tk.Tk()
+        self.__root = ctk.CTk()
 
 
     def start(self):
@@ -28,8 +29,12 @@ class Downloader:
 
 
         # Setting the icon of the application
-        icon = tk.PhotoImage(file = "Images/flag.png")
-        self.__root.iconphoto(True,icon)
+        try:
+            icon_image = pil.Image.open("Images/flag.png")
+            icon_photo_image = pil.ImageTk.PhotoImage(icon_image)
+            self.__root.wm_iconphoto(True,icon_photo_image)
+        except FileNotFoundError:
+            logging.warning("Error, program icon was not found.")
 
 
         # Setting the application name
@@ -37,9 +42,13 @@ class Downloader:
 
 
         # Setting the background image of the application
-        background = tk.PhotoImage(file = "Images/background.png")
-        label = tk.Label(self.__root, image=background)
-        label.place(x = 0, y = 0, relwidth = 1, relheight = 1)
+        try:
+            background_image = pil.Image.open("Images/background.png")
+            background_image = ctk.CTkImage(background_image, size=(WINDOW_WIDTH, WINDOW_HEIGHT))
+            label = ctk.CTkLabel(master=self.__root, image=background_image, text="")
+            label.place(x = 0, y = 0, relwidth = 1, relheight = 1)
+        except FileNotFoundError:
+            logging.warning("Error, program icon was not found.")
 
 
         # Checking if FFMPEG is installed in user's library
@@ -48,6 +57,7 @@ class Downloader:
 
         # Starting the windows
         self.__root.mainloop()
+
 
 
     def check_if_ffmpeg_is_installed(self):
@@ -68,10 +78,10 @@ class Downloader:
         # the program to work.
         if(not self.__ffmpeg_installed):
             logging.warning("ffmpeg is not installed, impossible to continue.")
-            label_ffmpeg_not_installed_warning = tk.Label(self.__root,\
+            label_ffmpeg_not_installed_warning = ctk.CTkLabel(master = self.__root,\
                                                         text = FFMPEG_NOT_INSTALLED_MESSAGE,\
                                                         justify = tk.LEFT,\
-                                                        font=("Times New Roman", 30))
+                                                        font=("Times New Roman", 30),)
             label_ffmpeg_not_installed_warning.pack()
             self.__root.update()
             label_ffmpeg_not_installed_warning.place(\
