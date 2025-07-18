@@ -10,11 +10,17 @@ WINDOW_HEIGHT = 540
 
 FFMPEG_NOT_INSTALLED_MESSAGE = "Sorry, FFMPEG is not installed on your computer :( \
                                 \nPlease close this window and install FFMPEG to use this software correctly."
+FFMPEG_NOT_INSTALLED_MESSAGE_X_POS = 100
+FFMPEG_NOT_INSTALLED_MESSAGE_Y_POS = 10
 
 class Downloader:
     def __init__(self):
         # Initializing the root to contain the main frame of the GUI application
         self.__root = ctk.CTk()
+
+        # # Initializing canvas
+        self.__canvas = ctk.CTkCanvas(self.__root, width=WINDOW_WIDTH, height=WINDOW_HEIGHT, highlightthickness=0)
+        self.__canvas.pack(fill="both", expand=True)
 
 
     def start(self):
@@ -29,66 +35,33 @@ class Downloader:
 
 
         # Setting the icon of the application
-        try:
-            icon_image = pil.Image.open("Images/flag.png")
-            icon_photo_image = pil.ImageTk.PhotoImage(icon_image)
-            self.__root.wm_iconphoto(True,icon_photo_image)
-        except FileNotFoundError:
-            logging.warning("Error, program icon was not found.")
+        icon_photo_image = pil.ImageTk.PhotoImage(pil.Image.open("Images/flag.png"))
+        self.__root.wm_iconphoto(True,icon_photo_image)
 
 
         # Setting the application name
         self.__root.title(APPLICATION_NAME)
 
 
-        # Setting the background image of the application
+        # Setting the background image of the program
+        background_image = pil.Image.open("Images/background.png").convert("RGBA")
+        background = pil.ImageTk.PhotoImage(background_image)
+        self.__canvas.create_image(0, 0, anchor="nw", image=background)
+
+
+        # Checking if FFMPEG is installed in user's computer
         try:
-            background_image = pil.Image.open("Images/background.png")
-            background_image = ctk.CTkImage(background_image, size=(WINDOW_WIDTH, WINDOW_HEIGHT))
-            label = ctk.CTkLabel(master=self.__root, image=background_image, text="")
-            label.place(x = 0, y = 0, relwidth = 1, relheight = 1)
+            subprocess.run(['ffmpeg', '-version'], capture_output=True, text=True, check=True)
         except FileNotFoundError:
-            logging.warning("Error, program icon was not found.")
-
-
-        # Checking if FFMPEG is installed in user's library
-        self.check_if_ffmpeg_is_installed()
+            logging.warning("ffmpeg is not installed in this computer, please install ffmpeg.")
+            self.__canvas.create_text(FFMPEG_NOT_INSTALLED_MESSAGE_X_POS,\
+                                    FFMPEG_NOT_INSTALLED_MESSAGE_Y_POS, anchor="nw",\
+                                    text=FFMPEG_NOT_INSTALLED_MESSAGE, font=('Times New Roman',25),\
+                                    fill="#eed6b7")
 
 
         # Starting the windows
         self.__root.mainloop()
-
-
-
-    def check_if_ffmpeg_is_installed(self):
-        # Checking if ffmpeg is installed
-        self.__ffmpeg_installed = False
-        try:
-            subprocess.run(['ffmpeg', '-version'], capture_output=True, text=True, check=True)
-            self.__ffmpeg_installed = True
-        except FileNotFoundError:
-            logging.warning("ffmpeg is not installed in this computer, please install ffmpeg.")
-
-
-        # Depending of the ffmpeg status on the computer, the UI will change.
-        # If ffmpeg is installed, then the normal interface will be shown and the program
-        # will start withtou problems.
-
-        # If ffmpeg is NOT installed, then a message will inform user to install ffmpeg for
-        # the program to work.
-        if(not self.__ffmpeg_installed):
-            logging.warning("ffmpeg is not installed, impossible to continue.")
-            label_ffmpeg_not_installed_warning = ctk.CTkLabel(master = self.__root,\
-                                                        text = FFMPEG_NOT_INSTALLED_MESSAGE,\
-                                                        justify = tk.LEFT,\
-                                                        font=("Times New Roman", 30),)
-            label_ffmpeg_not_installed_warning.pack()
-            self.__root.update()
-            label_ffmpeg_not_installed_warning.place(\
-                x = (WINDOW_WIDTH-label_ffmpeg_not_installed_warning.winfo_width())/2,\
-                y = (WINDOW_HEIGHT-label_ffmpeg_not_installed_warning.winfo_height())/2)
-        else:
-            logging.warning("ffmpeg is installed, continue.")
 
 
 
