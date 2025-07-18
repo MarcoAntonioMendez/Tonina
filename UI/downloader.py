@@ -7,19 +7,13 @@ APPLICATION_NAME = "Toniná"
 WINDOW_WIDTH = 960
 WINDOW_HEIGHT = 540
 
+FFMPEG_NOT_INSTALLED_MESSAGE = "Sorry, FFMPEG is not installed on your computer :( \
+                                \nPlease close this window and install FFMPEG to use this software correctly."
+
 class Downloader:
     def __init__(self):
         # Initializing the root to contain the main frame of the GUI application
         self.__root = tk.Tk()
-
-
-        # Checking if ffmpeg is installed
-        self.__ffmpeg_installed = False
-        try:
-            subprocess.run(['ffmpeg', '-version'], capture_output=True, text=True, check=True)
-            self.__ffmpeg_installed = True
-        except FileNotFoundError:
-            logging.warning("ffmpeg is not installed in this computer, please install ffmpeg.")
 
 
     def start(self):
@@ -48,11 +42,43 @@ class Downloader:
         label.place(x = 0, y = 0, relwidth = 1, relheight = 1)
 
 
+        # Checking if FFMPEG is installed in user's library
+        self.check_if_ffmpeg_is_installed()
+
+
         # Starting the windows
         self.__root.mainloop()
 
 
+    def check_if_ffmpeg_is_installed(self):
+        # Checking if ffmpeg is installed
+        self.__ffmpeg_installed = False
+        try:
+            subprocess.run(['ffmpeg', '-version'], capture_output=True, text=True, check=True)
+            self.__ffmpeg_installed = True
+        except FileNotFoundError:
+            logging.warning("ffmpeg is not installed in this computer, please install ffmpeg.")
 
+
+        # Depending of the ffmpeg status on the computer, the UI will change.
+        # If ffmpeg is installed, then the normal interface will be shown and the program
+        # will start withtou problems.
+
+        # If ffmpeg is NOT installed, then a message will inform user to install ffmpeg for
+        # the program to work.
+        if(not self.__ffmpeg_installed):
+            logging.warning("ffmpeg is not installed, impossible to continue.")
+            label_ffmpeg_not_installed_warning = tk.Label(self.__root,\
+                                                        text = FFMPEG_NOT_INSTALLED_MESSAGE,\
+                                                        justify = tk.LEFT,\
+                                                        font=("Times New Roman", 30))
+            label_ffmpeg_not_installed_warning.pack()
+            self.__root.update()
+            label_ffmpeg_not_installed_warning.place(\
+                x = (WINDOW_WIDTH-label_ffmpeg_not_installed_warning.winfo_width())/2,\
+                y = (WINDOW_HEIGHT-label_ffmpeg_not_installed_warning.winfo_height())/2)
+        else:
+            logging.warning("ffmpeg is installed, continue.")
 
 
 
