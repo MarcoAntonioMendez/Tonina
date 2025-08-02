@@ -27,14 +27,22 @@ INITIAL_LABEL_SECTION_RECTANGLE_X_POS_2,INITIAL_LABEL_SECTION_RECTANGLE_Y_POS_2 
 INITIAL_LABEL_SECTION_TEXT_X_POS = 30
 INITIAL_LABEL_SECTION_TEXT_Y_POS = 92
 
+ENTRY_WIDGET_WIDTH = 685
+INITIAL_ENTRY_SECTION_X_POS = 260
+
+CHOOSE_ALBUM_COVER_TEXT = "Elegir Imagen"
+
 class Downloader:
     def __init__(self):
         # Initializing the root to contain the main frame of the GUI application
         self.__root = ctk.CTk()
 
-        # # Initializing canvas
+        # Initializing canvas
         self.__canvas = ctk.CTkCanvas(self.__root, width=WINDOW_WIDTH, height=WINDOW_HEIGHT, highlightthickness=0)
         self.__canvas.pack(fill="both", expand=True)
+
+        # Initializing list of entry widgets
+        self.__widget_entries = []
 
 
     def start(self):
@@ -109,6 +117,28 @@ class Downloader:
             text = SONG_METADATA_SECTIONS_TEXTS_LIST[index]
             self.__canvas.create_text(x_pos,y_pos, anchor="nw",text=text,\
                                     font=('Times New Roman',20),fill="#eed6b7")
+
+
+            # Setting the textboxes and the button to choose album cover
+            if(index != (len(SONG_METADATA_SECTIONS_TEXTS_LIST)-1) ):
+                x_pos = INITIAL_ENTRY_SECTION_X_POS
+                y_pos = INITIAL_LABEL_SECTION_TEXT_Y_POS+diff
+                entry_widget = ctk.CTkEntry(self.__root,font=('Times New Roman',20),width=ENTRY_WIDGET_WIDTH)
+                entry_widget.place(x = x_pos, y = y_pos)
+                self.__widget_entries.append(entry_widget)
+            else:
+                x_pos = INITIAL_ENTRY_SECTION_X_POS
+                y_pos = INITIAL_LABEL_SECTION_TEXT_Y_POS+diff
+                self.__choose_album_cover_button = ctk.CTkButton(self.__root,\
+                                                                font=('Times New Roman',20,"italic"),\
+                                                                text=CHOOSE_ALBUM_COVER_TEXT,\
+                                                                width=ENTRY_WIDGET_WIDTH,\
+                                                                fg_color="#59239a",\
+                                                                text_color="#eed6b7",\
+                                                                border_width=3,\
+                                                                corner_radius=5,\
+                                                                border_color="#998a76")
+                self.__choose_album_cover_button.place(x = x_pos, y = y_pos)
 
 
 
