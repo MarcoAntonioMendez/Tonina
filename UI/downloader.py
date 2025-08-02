@@ -35,7 +35,7 @@ class Downloader:
 
 
         # Setting the icon of the application
-        icon_photo_image = pil.ImageTk.PhotoImage(pil.Image.open("Images/flag.png"))
+        icon_photo_image = pil.ImageTk.PhotoImage(pil.Image.open("Images/glifo_maya_icon.png"))
         self.__root.wm_iconphoto(True,icon_photo_image)
 
 
