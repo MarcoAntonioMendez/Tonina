@@ -51,6 +51,10 @@ RESET_BUTTON_BORDER_COLOR = "#1680c7"
 RESET_BUTTON_X_POS = 20
 RESET_BUTTON_Y_POS = 450
 
+
+CHOOSE_ALBUM_COVER_FILE_DIALOG_TEXT = "Selecciona una imagen para la portadata del álbum"
+CHOOSE_ALBUM_COVER_FILE_DIALOG_IMAGES_TEXT = "Imágenes"
+
 class Downloader:
     def __init__(self):
         # Initializing the root to contain the main frame of the GUI application
@@ -156,7 +160,8 @@ class Downloader:
                                                                 text_color=TONINA_TITLE_TEXT_COLOR,\
                                                                 border_width=CHOOSE_ALBUM_COVER_BORDER_WIDTH,\
                                                                 corner_radius=CHOOSE_ALBUM_COVER_CORNER_RADIUS,\
-                                                                border_color=CHOOSE_ALBUM_COVER_BORDER_COLOR)
+                                                                border_color=CHOOSE_ALBUM_COVER_BORDER_COLOR,\
+                                                                command=self.choose_album_cover_dialog)
                 self.__choose_album_cover_button.place(x = x_pos, y = y_pos)
 
 
@@ -189,6 +194,40 @@ class Downloader:
                                             border_color=RESET_BUTTON_BORDER_COLOR,\
                                             image=reset_icon)
         self.__reset_button.place(x = RESET_BUTTON_X_POS,y = RESET_BUTTON_Y_POS)
+
+
+
+    def choose_album_cover_dialog(self):
+        # Opening the file dialog to choose an image for the album cover
+        self.__album_cover_image_file_full_path = ctk.filedialog.askopenfilename(\
+            title=CHOOSE_ALBUM_COVER_FILE_DIALOG_TEXT,\
+            filetypes=[(CHOOSE_ALBUM_COVER_FILE_DIALOG_IMAGES_TEXT, "*.png"),\
+            (CHOOSE_ALBUM_COVER_FILE_DIALOG_IMAGES_TEXT, "*.jpg")])
+
+        # Checking if user actually chose something or if the cancel button was pressed
+        if(self.__album_cover_image_file_full_path):
+
+            self.__album_cover_image_file = ""
+
+            # Getting only the file name from the full path
+            for index in range(len(self.__album_cover_image_file_full_path) - 1, -1, -1):
+                if(self.__album_cover_image_file_full_path[index] == '/'):
+                    break
+                else:
+                    self.__album_cover_image_file += self.__album_cover_image_file_full_path[index]
+
+            # At this point, the file name is reversed so it's needed to sort it out
+            self.__album_cover_image_file = self.__album_cover_image_file[::-1]
+
+            # Changing the look of the self.__choose_album_cover_button
+            self.__choose_album_cover_button.configure(text=self.__album_cover_image_file)
+        else:
+            self.__choose_album_cover_button.configure(text=CHOOSE_ALBUM_COVER_TEXT)
+
+
+
+
+
 
 
 
