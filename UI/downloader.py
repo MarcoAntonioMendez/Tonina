@@ -55,6 +55,27 @@ RESET_BUTTON_Y_POS = 450
 CHOOSE_ALBUM_COVER_FILE_DIALOG_TEXT = "Selecciona una imagen para la portadata del álbum"
 CHOOSE_ALBUM_COVER_FILE_DIALOG_IMAGES_TEXT = "Imágenes"
 
+
+PROGRESS_BAR_POP_UP_TITLE_TEXT = "Descargando..."
+PROGRESS_BAR_POP_UP_WIDTH = 300
+PROGRESS_BAR_POP_UP_HEIGHT = 533
+
+METADATA_MISSING_TEXT = "Algún campo de la metadata \n\
+no ha sido ingresado \n\
+correctamente :(, por favor \n\
+asegúrese de que toda la \n\
+metadata (título de la \n\
+canción, artista, portada \n\
+del álbum etc.) fue ingresada \n\
+en su totalidad."
+METADATA_MISSING_X_POS = 10
+METADATA_MISSING_Y_POS = 10
+
+
+RETURN_TO_MAIN_WINDOW_BUTTON_TEXT = "Volver a la Pantalla Principal"
+RETURN_TO_MAIN_WINDOW_BUTTON_X_POS = 17
+RETURN_TO_MAIN_WINDOW_BUTTON_Y_POS = 480
+
 class Downloader:
     def __init__(self):
         # Initializing the root to contain the main frame of the GUI application
@@ -66,6 +87,9 @@ class Downloader:
 
         # Initializing list of entry widgets
         self.__widget_entries = []
+
+        # Initializing string to hold album cover image file path
+        self.__album_cover_image_file_full_path = ""
 
 
     def start(self):
@@ -176,7 +200,8 @@ class Downloader:
                                                     border_width=CHOOSE_ALBUM_COVER_BORDER_WIDTH,\
                                                     corner_radius=CHOOSE_ALBUM_COVER_CORNER_RADIUS,\
                                                     border_color=DOWNLOAD_SONG_BUTTON_BORDER_COLOR,\
-                                                    image=button_icon)
+                                                    image=button_icon,\
+                                                    command=self.check_if_everything_is_good_to_download_a_song)
         self.__download_song_button.place(x = DOWNLOAD_SONG_BUTTON_X_POS,\
                                         y = DOWNLOAD_SONG_BUTTON_Y_POS)
 
@@ -236,6 +261,105 @@ class Downloader:
             entry.delete(0, ctk.END)
 
 
+
+
+    def check_if_everything_is_good_to_download_a_song(self):
+        # Checking all entries and album cover button
+        all_metadata_set = self.has_all_metadta_been_set()
+
+
+        # Creating a progress bar pop up
+        self.__top = ctk.CTkToplevel()
+        self.__top.title(PROGRESS_BAR_POP_UP_TITLE_TEXT)
+        self.__top.minsize(PROGRESS_BAR_POP_UP_WIDTH,PROGRESS_BAR_POP_UP_HEIGHT)
+        self.__top.maxsize(PROGRESS_BAR_POP_UP_WIDTH,PROGRESS_BAR_POP_UP_HEIGHT)
+        # Setting the size of the progress bar pop up
+        screen_width = self.__top.winfo_screenwidth()
+        screen_height = self.__top.winfo_screenheight()
+        x_pos = int((screen_width - PROGRESS_BAR_POP_UP_WIDTH)/2)
+        y_pos = int((screen_height - PROGRESS_BAR_POP_UP_HEIGHT)/2)
+        self.__top.geometry(f"{PROGRESS_BAR_POP_UP_WIDTH}x{PROGRESS_BAR_POP_UP_HEIGHT}+{x_pos}+{y_pos}")
+
+
+
+        #Creating the progress bar pop up canvas, so elements can be rendered in there.
+        # Setting the background of the progress bar pop up
+        self.__progress_bar_canvas = ctk.CTkCanvas(self.__top,\
+                                                width=PROGRESS_BAR_POP_UP_WIDTH,\
+                                                height=PROGRESS_BAR_POP_UP_HEIGHT,\
+                                                highlightthickness=0)
+        self.__progress_bar_canvas.pack(fill="both", expand=True)
+        background = pil.ImageTk.PhotoImage(pil.Image.open("Images/progress_bar_pop_up_background.png").convert("RGBA"))
+        self.__progress_bar_canvas.create_image(0, 0, anchor="nw", image=background)
+
+
+
+
+        # If the user entered the metadata correctly, then the song will start to be downloaded.
+        # If some of the metadata is missing, then the software will show a warning message
+        if(all_metadata_set):
+            # All metadata is fine, starting to download
+            print()
+        else:
+            # Some metadata is missing, inform the user of the issue
+            self.inform_user_some_metadata_is_missing()
+
+
+
+        # Disables the original root and only progress bar pop up stays active
+        self.__top.focus()
+        self.__top.transient(self.__root)
+        self.__top.grab_set()
+        self.__top.wait_window(self.__top)
+
+
+
+    def has_all_metadta_been_set(self):
+        all_metadata_set = True
+        for entry in self.__widget_entries:
+            if(entry.get() == ""):
+                all_metadata_set = False
+
+        if(self.__album_cover_image_file_full_path == ""):
+            all_metadata_set = False
+
+        return all_metadata_set
+
+
+
+
+
+
+
+
+
+
+    def inform_user_some_metadata_is_missing(self):
+        self.__progress_bar_canvas.create_text(METADATA_MISSING_X_POS,\
+                                    METADATA_MISSING_Y_POS, anchor="nw",\
+                                    text=METADATA_MISSING_TEXT, font=('Times New Roman',24),\
+                                    fill=TONINA_TITLE_TEXT_COLOR)
+
+
+        # Creating reset button
+        reset_icon = ctk.CTkImage(pil.Image.open("Images/reset_icon.png"),\
+                                    size=(DOWNLOAD_SONG_BUTTON_SIZE, DOWNLOAD_SONG_BUTTON_SIZE))
+        self.__return_to_main_window_button = ctk.CTkButton(self.__top,\
+                                            font=('Times New Roman',21,"italic"),\
+                                            text=RETURN_TO_MAIN_WINDOW_BUTTON_TEXT,\
+                                            fg_color=CHOOSE_ALBUM_COVER_BACKGROUND_COLOR,\
+                                            text_color=TONINA_TITLE_TEXT_COLOR,\
+                                            border_width=CHOOSE_ALBUM_COVER_BORDER_WIDTH,\
+                                            corner_radius=CHOOSE_ALBUM_COVER_CORNER_RADIUS,\
+                                            border_color=RESET_BUTTON_BORDER_COLOR,\
+                                            command=self.return_to_main_window)
+        self.__return_to_main_window_button.place(x = RETURN_TO_MAIN_WINDOW_BUTTON_X_POS,\
+                                                y = RETURN_TO_MAIN_WINDOW_BUTTON_Y_POS)
+
+
+    def return_to_main_window(self):
+        self.__top.destroy()
+        self.__top.update()
 
 
 
