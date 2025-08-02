@@ -17,6 +17,16 @@ TONINA_TITLE = "TONINÁ"
 TONINA_TITLE_X_POS = 340
 TONINA_TITLE_Y_POS = 5
 
+
+SONG_METADATA_SECTIONS_TEXTS_LIST = ["Título:","Artista:","Álbum:","Posición en Álbum:",\
+                                    "Género:","Youtube URL:","Portada de Álbum:"]
+
+LABELS_METADATA_SECTION_DIFF = 42
+INITIAL_LABEL_SECTION_RECTANGLE_X_POS_1,INITIAL_LABEL_SECTION_RECTANGLE_Y_POS_1 = 20, 90
+INITIAL_LABEL_SECTION_RECTANGLE_X_POS_2,INITIAL_LABEL_SECTION_RECTANGLE_Y_POS_2 = 250, 120
+INITIAL_LABEL_SECTION_TEXT_X_POS = 30
+INITIAL_LABEL_SECTION_TEXT_Y_POS = 92
+
 class Downloader:
     def __init__(self):
         # Initializing the root to contain the main frame of the GUI application
@@ -68,13 +78,38 @@ class Downloader:
 
         # If FFMPEG is installed, then the normal UI is created
         if(is_ffmpeg_installed):
-            self.__canvas.create_text(TONINA_TITLE_X_POS,TONINA_TITLE_Y_POS, anchor="nw",\
-                                    text=TONINA_TITLE, font=('Times New Roman',60),\
-                                    fill="#eed6b7")
-
+            self.set_user_interface()
 
         # Starting the windows
         self.__root.mainloop()
+
+
+
+    def set_user_interface(self):
+        self.__canvas.create_text(TONINA_TITLE_X_POS,TONINA_TITLE_Y_POS, anchor="nw",\
+                                    text=TONINA_TITLE, font=('Times New Roman',60),\
+                                    fill="#eed6b7")
+
+        # Traversing through the list containing the song metadata text.
+        # In each turn of the loop, the x and y coordinates of the visual elements are calcualted and set.
+        for index in range(len(SONG_METADATA_SECTIONS_TEXTS_LIST)):
+            #Painting rectangles to contain labels of song metadata
+            diff = index*LABELS_METADATA_SECTION_DIFF
+            x_pos_1 = INITIAL_LABEL_SECTION_RECTANGLE_X_POS_1
+            y_pos_1 = INITIAL_LABEL_SECTION_RECTANGLE_Y_POS_1+diff
+            x_pos_2 = INITIAL_LABEL_SECTION_RECTANGLE_X_POS_2
+            y_pos_2 = INITIAL_LABEL_SECTION_RECTANGLE_Y_POS_2+diff
+            self.__canvas.create_rectangle(x_pos_1,y_pos_1,x_pos_2,y_pos_2,\
+                                            outline="#7636C3", width=2)
+
+
+            # Painting the song metadata text
+            x_pos = INITIAL_LABEL_SECTION_TEXT_X_POS
+            y_pos = INITIAL_LABEL_SECTION_TEXT_Y_POS+diff
+            text = SONG_METADATA_SECTIONS_TEXTS_LIST[index]
+            self.__canvas.create_text(x_pos,y_pos, anchor="nw",text=text,\
+                                    font=('Times New Roman',20),fill="#eed6b7")
+
 
 
 
