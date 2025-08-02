@@ -2,6 +2,7 @@ import customtkinter as ctk
 import PIL as pil
 import subprocess
 import logging
+from DownloadEngine import mp3_downloader_engine
 
 APPLICATION_NAME = "Toniná"
 
@@ -90,6 +91,9 @@ class Downloader:
 
         # Initializing string to hold album cover image file path
         self.__album_cover_image_file_full_path = ""
+
+        # Initializing the downloader_engine
+        self.__downloader_engine = mp3_downloader_engine.Mp3DownloaderEngine()
 
 
     def start(self):
@@ -299,7 +303,7 @@ class Downloader:
         # If some of the metadata is missing, then the software will show a warning message
         if(all_metadata_set):
             # All metadata is fine, starting to download
-            print()
+            self.download_song()
         else:
             # Some metadata is missing, inform the user of the issue
             self.inform_user_some_metadata_is_missing()
@@ -370,3 +374,8 @@ class Downloader:
 
 
 
+
+
+
+    def download_song(self):
+        self.__downloader_engine.download_song()
