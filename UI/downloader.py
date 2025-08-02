@@ -38,6 +38,19 @@ CHOOSE_ALBUM_COVER_BORDER_COLOR = "#998a76"
 CHOOSE_ALBUM_COVER_BORDER_WIDTH = 3
 CHOOSE_ALBUM_COVER_CORNER_RADIUS = 5
 
+
+DOWNLOAD_SONG_BUTTON_TEXT = "Descargar Canción"
+DOWNLOAD_SONG_BUTTON_BORDER_COLOR = "#c74716"
+DOWNLOAD_SONG_BUTTON_SIZE = 35
+DOWNLOAD_SONG_BUTTON_X_POS = 650
+DOWNLOAD_SONG_BUTTON_Y_POS = 450
+
+
+RESET_BUTTON_TEXT = "Reset"
+RESET_BUTTON_BORDER_COLOR = "#1680c7"
+RESET_BUTTON_X_POS = 20
+RESET_BUTTON_Y_POS = 450
+
 class Downloader:
     def __init__(self):
         # Initializing the root to contain the main frame of the GUI application
@@ -145,6 +158,37 @@ class Downloader:
                                                                 corner_radius=CHOOSE_ALBUM_COVER_CORNER_RADIUS,\
                                                                 border_color=CHOOSE_ALBUM_COVER_BORDER_COLOR)
                 self.__choose_album_cover_button.place(x = x_pos, y = y_pos)
+
+
+        # Creating download button
+        button_icon = ctk.CTkImage(pil.Image.open("Images/red_arrow.png"),\
+                                    size=(DOWNLOAD_SONG_BUTTON_SIZE, DOWNLOAD_SONG_BUTTON_SIZE))
+        self.__download_song_button = ctk.CTkButton(self.__root,\
+                                                    font=('Times New Roman',30,"italic"),\
+                                                    text=DOWNLOAD_SONG_BUTTON_TEXT,\
+                                                    fg_color=CHOOSE_ALBUM_COVER_BACKGROUND_COLOR,\
+                                                    text_color=TONINA_TITLE_TEXT_COLOR,\
+                                                    border_width=CHOOSE_ALBUM_COVER_BORDER_WIDTH,\
+                                                    corner_radius=CHOOSE_ALBUM_COVER_CORNER_RADIUS,\
+                                                    border_color=DOWNLOAD_SONG_BUTTON_BORDER_COLOR,\
+                                                    image=button_icon)
+        self.__download_song_button.place(x = DOWNLOAD_SONG_BUTTON_X_POS,\
+                                        y = DOWNLOAD_SONG_BUTTON_Y_POS)
+
+
+        # Creating reset button
+        reset_icon = ctk.CTkImage(pil.Image.open("Images/reset_icon.png"),\
+                                    size=(DOWNLOAD_SONG_BUTTON_SIZE, DOWNLOAD_SONG_BUTTON_SIZE))
+        self.__reset_button = ctk.CTkButton(self.__root,\
+                                            font=('Times New Roman',30,"italic"),\
+                                            text=RESET_BUTTON_TEXT,\
+                                            fg_color=CHOOSE_ALBUM_COVER_BACKGROUND_COLOR,\
+                                            text_color=TONINA_TITLE_TEXT_COLOR,\
+                                            border_width=CHOOSE_ALBUM_COVER_BORDER_WIDTH,\
+                                            corner_radius=CHOOSE_ALBUM_COVER_CORNER_RADIUS,\
+                                            border_color=RESET_BUTTON_BORDER_COLOR,\
+                                            image=reset_icon)
+        self.__reset_button.place(x = RESET_BUTTON_X_POS,y = RESET_BUTTON_Y_POS)
 
 
 
