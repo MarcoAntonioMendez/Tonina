@@ -16,6 +16,7 @@ FFMPEG_NOT_INSTALLED_MESSAGE_Y_POS = 10
 TONINA_TITLE = "TONINÁ"
 TONINA_TITLE_X_POS = 340
 TONINA_TITLE_Y_POS = 5
+TONINA_TITLE_TEXT_COLOR = "#eed6b7"
 
 
 SONG_METADATA_SECTIONS_TEXTS_LIST = ["Título:","Artista:","Álbum:","Posición en Álbum:",\
@@ -26,11 +27,16 @@ INITIAL_LABEL_SECTION_RECTANGLE_X_POS_1,INITIAL_LABEL_SECTION_RECTANGLE_Y_POS_1 
 INITIAL_LABEL_SECTION_RECTANGLE_X_POS_2,INITIAL_LABEL_SECTION_RECTANGLE_Y_POS_2 = 250, 120
 INITIAL_LABEL_SECTION_TEXT_X_POS = 30
 INITIAL_LABEL_SECTION_TEXT_Y_POS = 92
+LABEL_RECTANGLE_OUTLINE_COLOR = "#7636C3"
 
 ENTRY_WIDGET_WIDTH = 685
 INITIAL_ENTRY_SECTION_X_POS = 260
 
 CHOOSE_ALBUM_COVER_TEXT = "Elegir Imagen"
+CHOOSE_ALBUM_COVER_BACKGROUND_COLOR = "#59239a"
+CHOOSE_ALBUM_COVER_BORDER_COLOR = "#998a76"
+CHOOSE_ALBUM_COVER_BORDER_WIDTH = 3
+CHOOSE_ALBUM_COVER_CORNER_RADIUS = 5
 
 class Downloader:
     def __init__(self):
@@ -96,7 +102,7 @@ class Downloader:
     def set_user_interface(self):
         self.__canvas.create_text(TONINA_TITLE_X_POS,TONINA_TITLE_Y_POS, anchor="nw",\
                                     text=TONINA_TITLE, font=('Times New Roman',60),\
-                                    fill="#eed6b7")
+                                    fill=TONINA_TITLE_TEXT_COLOR)
 
         # Traversing through the list containing the song metadata text.
         # In each turn of the loop, the x and y coordinates of the visual elements are calcualted and set.
@@ -108,7 +114,7 @@ class Downloader:
             x_pos_2 = INITIAL_LABEL_SECTION_RECTANGLE_X_POS_2
             y_pos_2 = INITIAL_LABEL_SECTION_RECTANGLE_Y_POS_2+diff
             self.__canvas.create_rectangle(x_pos_1,y_pos_1,x_pos_2,y_pos_2,\
-                                            outline="#7636C3", width=2)
+                                            outline=LABEL_RECTANGLE_OUTLINE_COLOR, width=2)
 
 
             # Painting the song metadata text
@@ -116,7 +122,7 @@ class Downloader:
             y_pos = INITIAL_LABEL_SECTION_TEXT_Y_POS+diff
             text = SONG_METADATA_SECTIONS_TEXTS_LIST[index]
             self.__canvas.create_text(x_pos,y_pos, anchor="nw",text=text,\
-                                    font=('Times New Roman',20),fill="#eed6b7")
+                                    font=('Times New Roman',20),fill=TONINA_TITLE_TEXT_COLOR)
 
 
             # Setting the textboxes and the button to choose album cover
@@ -133,11 +139,11 @@ class Downloader:
                                                                 font=('Times New Roman',20,"italic"),\
                                                                 text=CHOOSE_ALBUM_COVER_TEXT,\
                                                                 width=ENTRY_WIDGET_WIDTH,\
-                                                                fg_color="#59239a",\
-                                                                text_color="#eed6b7",\
-                                                                border_width=3,\
-                                                                corner_radius=5,\
-                                                                border_color="#998a76")
+                                                                fg_color=CHOOSE_ALBUM_COVER_BACKGROUND_COLOR,\
+                                                                text_color=TONINA_TITLE_TEXT_COLOR,\
+                                                                border_width=CHOOSE_ALBUM_COVER_BORDER_WIDTH,\
+                                                                corner_radius=CHOOSE_ALBUM_COVER_CORNER_RADIUS,\
+                                                                border_color=CHOOSE_ALBUM_COVER_BORDER_COLOR)
                 self.__choose_album_cover_button.place(x = x_pos, y = y_pos)
 
 
