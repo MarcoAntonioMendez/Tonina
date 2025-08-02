@@ -192,7 +192,8 @@ class Downloader:
                                             border_width=CHOOSE_ALBUM_COVER_BORDER_WIDTH,\
                                             corner_radius=CHOOSE_ALBUM_COVER_CORNER_RADIUS,\
                                             border_color=RESET_BUTTON_BORDER_COLOR,\
-                                            image=reset_icon)
+                                            image=reset_icon,\
+                                            command=self.reset_all_fields)
         self.__reset_button.place(x = RESET_BUTTON_X_POS,y = RESET_BUTTON_Y_POS)
 
 
@@ -223,6 +224,18 @@ class Downloader:
             self.__choose_album_cover_button.configure(text=self.__album_cover_image_file)
         else:
             self.__choose_album_cover_button.configure(text=CHOOSE_ALBUM_COVER_TEXT)
+
+
+
+    def reset_all_fields(self):
+        # Clearing all entries and the album cover image file
+        self.__album_cover_image_file_full_path = ""
+        self.__choose_album_cover_button.configure(text=CHOOSE_ALBUM_COVER_TEXT)
+
+        for entry in self.__widget_entries:
+            entry.delete(0, ctk.END)
+
+
 
 
 
