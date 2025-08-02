@@ -13,6 +13,10 @@ FFMPEG_NOT_INSTALLED_MESSAGE = "Sorry, FFMPEG is not installed on your computer 
 FFMPEG_NOT_INSTALLED_MESSAGE_X_POS = 100
 FFMPEG_NOT_INSTALLED_MESSAGE_Y_POS = 10
 
+TONINA_TITLE = "TONINÁ"
+TONINA_TITLE_X_POS = 340
+TONINA_TITLE_Y_POS = 5
+
 class Downloader:
     def __init__(self):
         # Initializing the root to contain the main frame of the GUI application
@@ -50,6 +54,7 @@ class Downloader:
 
 
         # Checking if FFMPEG is installed in user's computer
+        is_ffmpeg_installed = True
         try:
             subprocess.run(['ffmpeg', '-version'], capture_output=True, text=True, check=True)
         except FileNotFoundError:
@@ -57,6 +62,14 @@ class Downloader:
             self.__canvas.create_text(FFMPEG_NOT_INSTALLED_MESSAGE_X_POS,\
                                     FFMPEG_NOT_INSTALLED_MESSAGE_Y_POS, anchor="nw",\
                                     text=FFMPEG_NOT_INSTALLED_MESSAGE, font=('Times New Roman',25),\
+                                    fill="#eed6b7")
+            is_ffmpeg_installed = False
+
+
+        # If FFMPEG is installed, then the normal UI is created
+        if(is_ffmpeg_installed):
+            self.__canvas.create_text(TONINA_TITLE_X_POS,TONINA_TITLE_Y_POS, anchor="nw",\
+                                    text=TONINA_TITLE, font=('Times New Roman',60),\
                                     fill="#eed6b7")
 
 
