@@ -4,6 +4,7 @@ import subprocess
 import logging
 import os
 import threading
+import sys
 from DownloadEngine import mp3_downloader_engine
 
 APPLICATION_NAME = "Toniná"
@@ -132,7 +133,7 @@ class Downloader:
 
 
         # Setting the icon of the application
-        icon_photo_image = pil.ImageTk.PhotoImage(pil.Image.open("Images/glifo_maya_icon.png"))
+        icon_photo_image = pil.ImageTk.PhotoImage(pil.Image.open(self.resource_path(  "Images/glifo_maya_icon.png")  ))
         self.__root.wm_iconphoto(True,icon_photo_image)
 
 
@@ -141,7 +142,7 @@ class Downloader:
 
 
         # Setting the background image of the program
-        background_image = pil.Image.open("Images/background.png").convert("RGBA")
+        background_image = pil.Image.open(self.resource_path("Images/background.png")).convert("RGBA")
         background = pil.ImageTk.PhotoImage(background_image)
         self.__canvas.create_image(0, 0, anchor="nw", image=background)
 
@@ -220,7 +221,7 @@ class Downloader:
 
 
         # Creating download button
-        button_icon = ctk.CTkImage(pil.Image.open("Images/red_arrow.png"),\
+        button_icon = ctk.CTkImage(pil.Image.open(self.resource_path("Images/red_arrow.png")),\
                                     size=(DOWNLOAD_SONG_BUTTON_SIZE, DOWNLOAD_SONG_BUTTON_SIZE))
         self.__download_song_button = ctk.CTkButton(self.__root,\
                                                     font=('Times New Roman',30,"italic"),\
@@ -237,7 +238,7 @@ class Downloader:
 
 
         # Creating reset button
-        reset_icon = ctk.CTkImage(pil.Image.open("Images/reset_icon.png"),\
+        reset_icon = ctk.CTkImage(pil.Image.open(self.resource_path("Images/reset_icon.png")),\
                                     size=(DOWNLOAD_SONG_BUTTON_SIZE, DOWNLOAD_SONG_BUTTON_SIZE))
         self.__reset_button = ctk.CTkButton(self.__root,\
                                             font=('Times New Roman',30,"italic"),\
@@ -320,7 +321,7 @@ class Downloader:
                                                 height=PROGRESS_BAR_POP_UP_HEIGHT,\
                                                 highlightthickness=0)
         self.__progress_bar_canvas.pack(fill="both", expand=True)
-        background = pil.ImageTk.PhotoImage(pil.Image.open("Images/progress_bar_pop_up_background.png").convert("RGBA"))
+        background = pil.ImageTk.PhotoImage(pil.Image.open(self.resource_path("Images/progress_bar_pop_up_background.png")).convert("RGBA"))
         self.__progress_bar_canvas.create_image(0, 0, anchor="nw", image=background)
 
 
@@ -391,7 +392,7 @@ class Downloader:
     def set_download_progress_interface(self):
         # Adding graphical elements to inform the user the status of the download
         # Adding the album cover of the song being downloaded
-        pil_image = pil.Image.open(self.__album_cover_image_file_full_path)
+        pil_image = pil.Image.open(self.resource_path(self.__album_cover_image_file_full_path))
         ctk_image = ctk.CTkImage(light_image=pil_image,dark_image=pil_image,\
                                 size=(ALBUM_COVER_IMAGE_FOR_STATUS_SIZE, ALBUM_COVER_IMAGE_FOR_STATUS_SIZE))
         album_cover_image_for_status = ctk.CTkLabel(self.__top, image=ctk_image, text="")
@@ -480,6 +481,15 @@ class Downloader:
         clipboard_content = event.widget.clipboard_get()
         event.widget.insert(ctk.END, clipboard_content)
         return "break"
+
+
+    def resource_path(self,relative_path):
+        """ Get absolute path to resource, works for dev and PyInstaller """
+        if hasattr(sys, '_MEIPASS'):
+            base_path = sys._MEIPASS
+        else:
+            base_path = os.path.abspath(".")
+        return os.path.join(base_path, relative_path)
 
 
 
