@@ -16,7 +16,7 @@ class Mp3DownloaderEngine:
     def download_song(self, song_title: str, artist_name: str, album_name: str,\
                     track_position_in_album: str, song_genre: str, youtube_url: str,\
                     album_cover_image: str, return_to_main_window_button,\
-                    progress_bar, download_status_label):
+                    progress_bar, download_status_label, ffmpeg_command_path):
         self.__song_title = song_title
         self.__artist_name = artist_name
         self.__album_name = album_name
@@ -27,6 +27,7 @@ class Mp3DownloaderEngine:
         self.__return_to_main_window_button = return_to_main_window_button
         self.__progress_bar = progress_bar
         self.__download_status_label = download_status_label
+        self.__ffmpeg_command_path = ffmpeg_command_path
 
 
         #--------------------- Making the actual download ------------------------------
@@ -69,7 +70,7 @@ class Mp3DownloaderEngine:
         self.__progress_bar.step()
 
         # Adding the initial part for using ffmpeg
-        command_to_add_metadata += "ffmpeg -i "
+        command_to_add_metadata += self.__ffmpeg_command_path + " -i "
 
         # Adding the filename of the downloaded file
         command_to_add_metadata += filename + ".mp3"
