@@ -2,6 +2,8 @@ import customtkinter as ctk
 import PIL as pil
 import subprocess
 import logging
+import os
+import threading
 from DownloadEngine import mp3_downloader_engine
 
 APPLICATION_NAME = "Toniná"
@@ -22,6 +24,13 @@ TONINA_TITLE_TEXT_COLOR = "#eed6b7"
 
 SONG_METADATA_SECTIONS_TEXTS_LIST = ["Título:","Artista:","Álbum:","Posición en Álbum:",\
                                     "Género:","Youtube URL:","Portada de Álbum:"]
+# The following indexes must follow the order of the past list (SONG_METADATA_SECTIONS_TEXTS_LIST)
+SONG_TITLE_INDEX = 0
+ARTIST_NAME_INDEX = 1
+ALBUM_NAME_INDEX = 2
+ALBUM_TRACK_POSITION_INDEX = 3
+SONG_GENRE_INDEX = 4
+SONG_YOUTUBE_URL_INDEX = 5
 
 LABELS_METADATA_SECTION_DIFF = 42
 INITIAL_LABEL_SECTION_RECTANGLE_X_POS_1,INITIAL_LABEL_SECTION_RECTANGLE_Y_POS_1 = 20, 90
@@ -94,6 +103,9 @@ class Downloader:
 
         # Initializing the downloader_engine
         self.__downloader_engine = mp3_downloader_engine.Mp3DownloaderEngine()
+
+        # Saving original running directory
+        self.__original_working_dir = os.getcwd()
 
 
     def start(self):
@@ -176,6 +188,8 @@ class Downloader:
                 y_pos = INITIAL_LABEL_SECTION_TEXT_Y_POS+diff
                 entry_widget = ctk.CTkEntry(self.__root,font=('Times New Roman',20),width=ENTRY_WIDGET_WIDTH)
                 entry_widget.place(x = x_pos, y = y_pos)
+                entry_widget.bind("<<Paste>>", self.custom_paste_handler)
+                entry_widget.bind("<Control-v>", self.custom_paste_handler)
                 self.__widget_entries.append(entry_widget)
             else:
                 x_pos = INITIAL_ENTRY_SECTION_X_POS
@@ -270,6 +284,7 @@ class Downloader:
     def check_if_everything_is_good_to_download_a_song(self):
         # Checking all entries and album cover button
         all_metadata_set = self.has_all_metadta_been_set()
+        os.chdir(self.__original_working_dir)
 
 
         # Creating a progress bar pop up
@@ -303,7 +318,9 @@ class Downloader:
         # If some of the metadata is missing, then the software will show a warning message
         if(all_metadata_set):
             # All metadata is fine, starting to download
-            self.download_song()
+            # Setting the thread where the download will run on
+            download_thread = threading.Thread(target=self.download_song)
+            download_thread.start()
         else:
             # Some metadata is missing, inform the user of the issue
             self.inform_user_some_metadata_is_missing()
@@ -378,4 +395,31 @@ class Downloader:
 
 
     def download_song(self):
-        self.__downloader_engine.download_song()
+        self.__downloader_engine.download_song(\
+            song_title = self.__widget_entries[SONG_TITLE_INDEX].get(),\
+            artist_name = self.__widget_entries[ARTIST_NAME_INDEX].get(),\
+            album_name = self.__widget_entries[ALBUM_NAME_INDEX].get(),\
+            track_position_in_album = self.__widget_entries[ALBUM_TRACK_POSITION_INDEX].get(),\
+            song_genre = self.__widget_entries[SONG_GENRE_INDEX].get(),\
+            youtube_url = self.__widget_entries[SONG_YOUTUBE_URL_INDEX].get(),\
+            album_cover_image = self.__album_cover_image_file_full_path)
+
+
+
+    def custom_paste_handler(self,event):
+        clipboard_content = event.widget.clipboard_get()
+        event.widget.insert(ctk.END, clipboard_content)
+        return "break"
+
+
+
+
+
+
+
+
+
+
+
+
+
