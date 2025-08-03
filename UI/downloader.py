@@ -120,6 +120,9 @@ class Downloader:
         # Saving original running directory
         self.__original_working_dir = os.getcwd()
 
+        # Saving ffmpeg command location
+        self.__ffmpeg_command_path = self.resource_path("bin/ffmpeg")
+
 
     def start(self):
         # Calculating some coordinates to center the window frame in the middle of computer screen
@@ -150,7 +153,7 @@ class Downloader:
         # Checking if FFMPEG is installed in user's computer
         is_ffmpeg_installed = True
         try:
-            subprocess.run(['ffmpeg', '-version'], capture_output=True, text=True, check=True)
+            subprocess.run([self.__ffmpeg_command_path, '-version'], capture_output=True, text=True, check=True)
         except FileNotFoundError:
             logging.warning("ffmpeg is not installed in this computer, please install ffmpeg.")
             self.__canvas.create_text(FFMPEG_NOT_INSTALLED_MESSAGE_X_POS,\
@@ -473,7 +476,8 @@ class Downloader:
             album_cover_image = self.__album_cover_image_file_full_path,\
             return_to_main_window_button = self.__return_to_main_window_button,\
             progress_bar = self.__progress_bar,\
-            download_status_label = self.__download_status_label)
+            download_status_label = self.__download_status_label,\
+            ffmpeg_command_path = self.__ffmpeg_command_path)
 
 
 
