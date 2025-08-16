@@ -5,6 +5,7 @@ import logging
 import os
 import threading
 from DownloadEngine import mp3_downloader_engine
+from UI import language_handler
 
 APPLICATION_NAME = "Toniná"
 
@@ -118,6 +119,9 @@ class Downloader:
 
         # Saving original running directory
         self.__original_working_dir = os.getcwd()
+
+        # Initializing language handler
+        self.__language_handler = language_handler.LanguageHandler()
 
 
     def start(self):
