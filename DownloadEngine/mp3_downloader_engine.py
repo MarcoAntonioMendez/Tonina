@@ -117,7 +117,7 @@ class Mp3DownloaderEngine:
 
 
     def clear_string_from_forbidden_chars_for_file_names(self, string_to_clean):
-        forbidden_chars = ['<','>',':','"','/','|','?','*',' ']
+        forbidden_chars = ['<','>',':','"','/','|','?','*',"'",' ','(',')']
         clean_string = string_to_clean
         for char in forbidden_chars:
             clean_string = clean_string.replace(char, "_")
