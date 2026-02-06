@@ -5,7 +5,6 @@ import logging
 import os
 import threading
 from DownloadEngine import mp3_downloader_engine
-from UI import language_handler
 
 APPLICATION_NAME = "Toniná"
 
@@ -23,8 +22,8 @@ TONINA_TITLE_Y_POS = 5
 TONINA_TITLE_TEXT_COLOR = "#eed6b7"
 
 
-SONG_METADATA_SECTIONS_TEXTS_LIST = ["Título:","Artista:","Álbum:","Posición en Álbum:",\
-                                    "Género:","Youtube URL:","Portada de Álbum:"]
+SONG_METADATA_SECTIONS_TEXTS_LIST = ["Title:","Artist:","Album:","Album Track:",\
+                                    "Genre:","Youtube URL:","Album Cover:"]
 # The following indexes must follow the order of the past list (SONG_METADATA_SECTIONS_TEXTS_LIST)
 SONG_TITLE_INDEX = 0
 ARTIST_NAME_INDEX = 1
@@ -43,14 +42,14 @@ LABEL_RECTANGLE_OUTLINE_COLOR = "#7636C3"
 ENTRY_WIDGET_WIDTH = 685
 INITIAL_ENTRY_SECTION_X_POS = 260
 
-CHOOSE_ALBUM_COVER_TEXT = "Elegir Imagen"
+CHOOSE_ALBUM_COVER_TEXT = "Choose Image"
 CHOOSE_ALBUM_COVER_BACKGROUND_COLOR = "#59239a"
 CHOOSE_ALBUM_COVER_BORDER_COLOR = "#998a76"
 CHOOSE_ALBUM_COVER_BORDER_WIDTH = 3
 CHOOSE_ALBUM_COVER_CORNER_RADIUS = 5
 
 
-DOWNLOAD_SONG_BUTTON_TEXT = "Descargar Canción"
+DOWNLOAD_SONG_BUTTON_TEXT = "Download Song"
 DOWNLOAD_SONG_BUTTON_BORDER_COLOR = "#c74716"
 DOWNLOAD_SONG_BUTTON_SIZE = 35
 DOWNLOAD_SONG_BUTTON_X_POS = 650
@@ -63,27 +62,27 @@ RESET_BUTTON_X_POS = 20
 RESET_BUTTON_Y_POS = 450
 
 
-CHOOSE_ALBUM_COVER_FILE_DIALOG_TEXT = "Selecciona una imagen para la portadata del álbum"
-CHOOSE_ALBUM_COVER_FILE_DIALOG_IMAGES_TEXT = "Imágenes"
+CHOOSE_ALBUM_COVER_FILE_DIALOG_TEXT = "Select an image for the album cover"
+CHOOSE_ALBUM_COVER_FILE_DIALOG_IMAGES_TEXT = "Images"
 
 
-PROGRESS_BAR_POP_UP_TITLE_TEXT = "Descargando..."
+PROGRESS_BAR_POP_UP_TITLE_TEXT = "Downloading..."
 PROGRESS_BAR_POP_UP_WIDTH = 300
 PROGRESS_BAR_POP_UP_HEIGHT = 533
 
-METADATA_MISSING_TEXT = "Algún campo de la metadata \n\
-no ha sido ingresado \n\
-correctamente :(, por favor \n\
-asegúrese de que toda la \n\
-metadata (título de la \n\
-canción, artista, portada \n\
-del álbum etc.) fue ingresada \n\
-en su totalidad."
+METADATA_MISSING_TEXT = "Some metadata field \n\
+was not entered \n\
+correctly :(, please \n\
+make sure that all of the \n\
+metadata (song's title, \n\
+artist name, cover album, \n\
+etc.) was entered \n\
+in its totality."
 METADATA_MISSING_X_POS = 10
 METADATA_MISSING_Y_POS = 10
 
 
-RETURN_TO_MAIN_WINDOW_BUTTON_TEXT = "Volver a la Pantalla Principal"
+RETURN_TO_MAIN_WINDOW_BUTTON_TEXT = "Go Back to the Main Screen"
 RETURN_TO_MAIN_WINDOW_BUTTON_X_POS = 17
 RETURN_TO_MAIN_WINDOW_BUTTON_Y_POS = 480
 RETURN_TO_MAIN_WINDOW_BUTTON_DISABLED_BACKGROUND_COLOR = "#0f2933"
@@ -95,7 +94,7 @@ STATUS_LABELS_SPACE_BETWEEN = 5
 STATUS_LABELS_WRAP_LENGTH = 250
 SONG_TITLE_FOR_STATUS_X_POS = 20
 SONG_TITLE_FOR_STATUS_Y_POS = 190
-DOWNLOAD_STARTING_STATUS = "Comenzando descarga..."
+DOWNLOAD_STARTING_STATUS = "Starting the download..."
 PROGRESS_BAR_SPACE_BETWEEN = 50
 DOWNLOAD_STATUS_SPACE_BETWEEN = 10
 
@@ -119,9 +118,6 @@ class Downloader:
 
         # Saving original running directory
         self.__original_working_dir = os.getcwd()
-
-        # Initializing language handler
-        self.__language_handler = language_handler.LanguageHandler()
 
 
     def start(self):

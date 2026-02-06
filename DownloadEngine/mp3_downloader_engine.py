@@ -41,7 +41,7 @@ class Mp3DownloaderEngine:
         #Changing to the default download directory
         os.chdir(str(Path.home())+"/Downloads")
         self.__progress_bar.step()
-        self.__download_status_label.configure(text="Extrayendo audio...")
+        self.__download_status_label.configure(text="Extracting audio...")
 
         # Setting up YoutubeDLP options
         ydl_opts = {
@@ -100,7 +100,7 @@ class Mp3DownloaderEngine:
 
 
         # Executing the metadata command
-        self.__download_status_label.configure(text="Estableciendo metadata...")
+        self.__download_status_label.configure(text="Setting metadata...")
         os.system(command_to_add_metadata)
         self.__progress_bar.step()
 
@@ -108,7 +108,7 @@ class Mp3DownloaderEngine:
         os.remove(filename+".mp3")
         self.__progress_bar.step()
         self.__download_status_label.configure(\
-            text="DESCARGA FINALIZADA! El Archivo ha sido guardado en la carpeta de descargas :D.")
+            text="DOWNLOAD FINISHED! The file has been saved in the downloads folder :D.")
 
 
         # Enabling the return to the main window button
