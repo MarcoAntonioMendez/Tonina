@@ -13,15 +13,23 @@ class Mp3DownloaderEngine:
     def __init__(self):
         print()
 
-    def download_song(self, song_title: str, artist_name: str, album_name: str,\
-                    track_position_in_album: str, song_genre: str, youtube_url: str,\
-                    album_cover_image: str, return_to_main_window_button,\
-                    progress_bar, download_status_label):
+    def download_song(self, song_title: str,
+                    artist_name: str,
+                    album_name: str,
+                    track_position_in_album: str,
+                    song_genre: str,
+                    song_year: str,
+                    youtube_url: str,
+                    album_cover_image: str,
+                    return_to_main_window_button: ctk.windows.widgets.ctk_button.CTkButton,
+                    progress_bar: ctk.windows.widgets.ctk_progressbar.CTkProgressBar,
+                    download_status_label: ctk.windows.widgets.ctk_label.CTkLabel):
         self.__song_title = song_title
         self.__artist_name = artist_name
         self.__album_name = album_name
         self.__track_position_in_album = track_position_in_album
         self.__song_genre = song_genre
+        self.__song_year = song_year
         self.__youtube_url = youtube_url
         self.__album_cover_image = album_cover_image
         self.__return_to_main_window_button = return_to_main_window_button
@@ -93,6 +101,9 @@ class Mp3DownloaderEngine:
 
         # Adding the genre
         command_to_add_metadata += " -metadata genre=" + "\"" + self.__song_genre + "\""
+
+        # Adding the year
+        command_to_add_metadata += " -metadata year=" + "\"" + self.__song_year + "\""
 
         # Adding the quality and final output filename
         command_to_add_metadata += " -b:a 320k " + filename.replace(BETA_KEYBOARD, "") + ".mp3"

@@ -23,24 +23,26 @@ TONINA_TITLE_TEXT_COLOR = "#eed6b7"
 
 
 SONG_METADATA_SECTIONS_TEXTS_LIST = ["Title:","Artist:","Album:","Album Track:",\
-                                    "Genre:","Youtube URL:","Album Cover:"]
+                                    "Genre:","Year:","Youtube URL:","Album Cover:"]
 # The following indexes must follow the order of the past list (SONG_METADATA_SECTIONS_TEXTS_LIST)
 SONG_TITLE_INDEX = 0
 ARTIST_NAME_INDEX = 1
 ALBUM_NAME_INDEX = 2
 ALBUM_TRACK_POSITION_INDEX = 3
 SONG_GENRE_INDEX = 4
-SONG_YOUTUBE_URL_INDEX = 5
+SONG_YEAR_INDEX = 5
+SONG_YOUTUBE_URL_INDEX = 6
 
 LABELS_METADATA_SECTION_DIFF = 42
-INITIAL_LABEL_SECTION_RECTANGLE_X_POS_1,INITIAL_LABEL_SECTION_RECTANGLE_Y_POS_1 = 20, 90
-INITIAL_LABEL_SECTION_RECTANGLE_X_POS_2,INITIAL_LABEL_SECTION_RECTANGLE_Y_POS_2 = 250, 120
+INITIAL_LABEL_SECTION_RECTANGLE_X_POS_1,INITIAL_LABEL_SECTION_RECTANGLE_Y_POS_1 = 20, 20
+INITIAL_LABEL_SECTION_RECTANGLE_X_POS_2,INITIAL_LABEL_SECTION_RECTANGLE_Y_POS_2 = 230, 50
 INITIAL_LABEL_SECTION_TEXT_X_POS = 30
-INITIAL_LABEL_SECTION_TEXT_Y_POS = 92
+INITIAL_LABEL_SECTION_TEXT_Y_POS = 25
 LABEL_RECTANGLE_OUTLINE_COLOR = "#7636C3"
 
 ENTRY_WIDGET_WIDTH = 685
-INITIAL_ENTRY_SECTION_X_POS = 260
+INITIAL_ENTRY_SECTION_X_POS = 240
+ENTRY_SECTION_Y_POS_OFFSET = 5
 
 CHOOSE_ALBUM_COVER_TEXT = "Choose Image"
 CHOOSE_ALBUM_COVER_BACKGROUND_COLOR = "#59239a"
@@ -52,14 +54,14 @@ CHOOSE_ALBUM_COVER_CORNER_RADIUS = 5
 DOWNLOAD_SONG_BUTTON_TEXT = "Download Song"
 DOWNLOAD_SONG_BUTTON_BORDER_COLOR = "#c74716"
 DOWNLOAD_SONG_BUTTON_SIZE = 35
-DOWNLOAD_SONG_BUTTON_X_POS = 650
-DOWNLOAD_SONG_BUTTON_Y_POS = 450
+DOWNLOAD_SONG_BUTTON_X_POS = 673
+DOWNLOAD_SONG_BUTTON_Y_POS = 390
 
 
 RESET_BUTTON_TEXT = "Reset"
 RESET_BUTTON_BORDER_COLOR = "#1680c7"
-RESET_BUTTON_X_POS = 20
-RESET_BUTTON_Y_POS = 450
+RESET_BUTTON_X_POS = 25
+RESET_BUTTON_Y_POS = 390
 
 
 CHOOSE_ALBUM_COVER_FILE_DIALOG_TEXT = "Select an image for the album cover"
@@ -98,13 +100,61 @@ DOWNLOAD_STARTING_STATUS = "Starting the download..."
 PROGRESS_BAR_SPACE_BETWEEN = 50
 DOWNLOAD_STATUS_SPACE_BETWEEN = 10
 
+DOWNLOAD_SONG_TAB_NAME = "Download New Song"
+SET_METADATA_TO_EXISTING_SONG_NAME = "Set Metadata to an Existing Song"
+TAB_SEPARATOR = "🎧"
+TABS_BACKGROUND_COLOR = "#360185"
+TABS_FOREGROUND_COLOR = "#360185"
+SEGMENTED_BUTTON_FG_COLOR = "#360185"
+SEGMENTED_BUTTON_UNSELECTED_COLOR = "#360185"
+SEGMENTED_BUTTON_SELECTED_COLOR = "#15173D"
+SEGMENTED_BUTTON_UNSELECTED_HOVER_COLOR = "#F4B342"
+TABS_TEXT_COLOR = "#DE1A58"
+TABS_BORDER_COLOR = "#EDEDCE"
+
+
 class Downloader:
     def __init__(self):
         # Initializing the root to contain the main frame of the GUI application
         self.__root = ctk.CTk()
 
+         # Initializing the two main tabs.
+        # 1. Download Song
+        # 2. Set metadata on existing song
+        self.__tabs = ctk.CTkTabview(self.__root,
+                                    width=WINDOW_WIDTH,
+                                    height=WINDOW_HEIGHT,
+                                    bg_color=TABS_BACKGROUND_COLOR,
+                                    fg_color=TABS_FOREGROUND_COLOR,
+                                    segmented_button_fg_color=SEGMENTED_BUTTON_FG_COLOR,
+                                    segmented_button_unselected_color=SEGMENTED_BUTTON_UNSELECTED_COLOR,
+                                    segmented_button_selected_color=SEGMENTED_BUTTON_SELECTED_COLOR,
+                                    segmented_button_unselected_hover_color=SEGMENTED_BUTTON_UNSELECTED_HOVER_COLOR,
+                                    text_color=TABS_TEXT_COLOR,
+                                    anchor="nw",
+                                    border_color=TABS_BORDER_COLOR,
+                                    border_width=3)
+        self.__tabs._segmented_button.configure(font=ctk.CTkFont(family="Times New Roman", size=25, weight="bold"))
+        self.__tabs.pack(fill="both", expand=True)
+
+        # Setting the tab where user downloads a song.
+        self.__download_song_tab = self.__tabs.add(DOWNLOAD_SONG_TAB_NAME)
+        self.__download_song_tab_canvas = ctk.CTkCanvas(self.__download_song_tab,
+                                                        width=WINDOW_WIDTH,
+                                                        height=WINDOW_HEIGHT,
+                                                        highlightthickness=0,
+                                                        background=TABS_BACKGROUND_COLOR)
+        self.__download_song_tab_canvas.pack(fill="both", expand=True)
+
+        # Setting a dummy tab as a separator
+        self.__tabs.add(TAB_SEPARATOR)
+        self.__tabs._segmented_button._buttons_dict[TAB_SEPARATOR].configure(state="disabled")
+
+        # Setting the tab where user sets metadata to an existing song
+        self.__set_metadata_to_an_existing_song_tab = self.__tabs.add(SET_METADATA_TO_EXISTING_SONG_NAME)
+
         # Initializing canvas
-        self.__canvas = ctk.CTkCanvas(self.__root, width=WINDOW_WIDTH, height=WINDOW_HEIGHT, highlightthickness=0)
+        self.__canvas = ctk.CTkCanvas(self.__download_song_tab, width=WINDOW_WIDTH, height=WINDOW_HEIGHT, highlightthickness=0)
         self.__canvas.pack(fill="both", expand=True)
 
         # Initializing list of entry widgets
@@ -140,22 +190,27 @@ class Downloader:
         self.__root.title(APPLICATION_NAME)
 
 
-        # Setting the background image of the program
-        background_image = pil.Image.open("Images/background.png").convert("RGBA")
-        background = pil.ImageTk.PhotoImage(background_image)
-        self.__canvas.create_image(0, 0, anchor="nw", image=background)
-
-
         # Checking if FFMPEG is installed in user's computer
         is_ffmpeg_installed = True
         try:
             subprocess.run(['ffmpeg', '-version'], capture_output=True, text=True, check=True)
         except FileNotFoundError:
             logging.warning("ffmpeg is not installed in this computer, please install ffmpeg.")
-            self.__canvas.create_text(FFMPEG_NOT_INSTALLED_MESSAGE_X_POS,\
-                                    FFMPEG_NOT_INSTALLED_MESSAGE_Y_POS, anchor="nw",\
-                                    text=FFMPEG_NOT_INSTALLED_MESSAGE, font=('Times New Roman',25),\
-                                    fill="#eed6b7")
+            # Informing the user that ffmpeg is not installed correctly in the computer.
+            self.__ffmpeg_not_installed_label_1 = ctk.CTkLabel(self.__download_song_tab,
+                                                                anchor="nw",
+                                                                text=FFMPEG_NOT_INSTALLED_MESSAGE,
+                                                                font=('Times New Roman',25))
+            self.__ffmpeg_not_installed_label_1.place(x = FFMPEG_NOT_INSTALLED_MESSAGE_X_POS,
+                                                    y = FFMPEG_NOT_INSTALLED_MESSAGE_Y_POS)
+
+            self.__ffmpeg_not_installed_label_2 = ctk.CTkLabel(self.__set_metadata_to_an_existing_song_tab,
+                                                                anchor="nw",
+                                                                text=FFMPEG_NOT_INSTALLED_MESSAGE,
+                                                                font=('Times New Roman',25))
+            self.__ffmpeg_not_installed_label_2.place(x = FFMPEG_NOT_INSTALLED_MESSAGE_X_POS,
+                                                    y = FFMPEG_NOT_INSTALLED_MESSAGE_Y_POS)
+
             is_ffmpeg_installed = False
 
 
@@ -169,10 +224,6 @@ class Downloader:
 
 
     def set_user_interface(self):
-        self.__canvas.create_text(TONINA_TITLE_X_POS,TONINA_TITLE_Y_POS, anchor="nw",\
-                                    text=TONINA_TITLE, font=('Times New Roman',60),\
-                                    fill=TONINA_TITLE_TEXT_COLOR)
-
         # Traversing through the list containing the song metadata text.
         # In each turn of the loop, the x and y coordinates of the visual elements are calcualted and set.
         for index in range(len(SONG_METADATA_SECTIONS_TEXTS_LIST)):
@@ -182,7 +233,7 @@ class Downloader:
             y_pos_1 = INITIAL_LABEL_SECTION_RECTANGLE_Y_POS_1+diff
             x_pos_2 = INITIAL_LABEL_SECTION_RECTANGLE_X_POS_2
             y_pos_2 = INITIAL_LABEL_SECTION_RECTANGLE_Y_POS_2+diff
-            self.__canvas.create_rectangle(x_pos_1,y_pos_1,x_pos_2,y_pos_2,\
+            self.__download_song_tab_canvas.create_rectangle(x_pos_1,y_pos_1,x_pos_2,y_pos_2,\
                                             outline=LABEL_RECTANGLE_OUTLINE_COLOR, width=2)
 
 
@@ -190,23 +241,23 @@ class Downloader:
             x_pos = INITIAL_LABEL_SECTION_TEXT_X_POS
             y_pos = INITIAL_LABEL_SECTION_TEXT_Y_POS+diff
             text = SONG_METADATA_SECTIONS_TEXTS_LIST[index]
-            self.__canvas.create_text(x_pos,y_pos, anchor="nw",text=text,\
+            self.__download_song_tab_canvas.create_text(x_pos,y_pos, anchor="nw",text=text,\
                                     font=('Times New Roman',20),fill=TONINA_TITLE_TEXT_COLOR)
 
 
             # Setting the textboxes and the button to choose album cover
             if(index != (len(SONG_METADATA_SECTIONS_TEXTS_LIST)-1) ):
                 x_pos = INITIAL_ENTRY_SECTION_X_POS
-                y_pos = INITIAL_LABEL_SECTION_TEXT_Y_POS+diff
-                entry_widget = ctk.CTkEntry(self.__root,font=('Times New Roman',20),width=ENTRY_WIDGET_WIDTH)
+                y_pos = INITIAL_LABEL_SECTION_TEXT_Y_POS+diff-ENTRY_SECTION_Y_POS_OFFSET
+                entry_widget = ctk.CTkEntry(self.__download_song_tab,font=('Times New Roman',20),width=ENTRY_WIDGET_WIDTH)
                 entry_widget.place(x = x_pos, y = y_pos)
                 entry_widget.bind("<<Paste>>", self.custom_paste_handler)
                 entry_widget.bind("<Control-v>", self.custom_paste_handler)
                 self.__widget_entries.append(entry_widget)
             else:
                 x_pos = INITIAL_ENTRY_SECTION_X_POS
-                y_pos = INITIAL_LABEL_SECTION_TEXT_Y_POS+diff
-                self.__choose_album_cover_button = ctk.CTkButton(self.__root,\
+                y_pos = INITIAL_LABEL_SECTION_TEXT_Y_POS+diff-ENTRY_SECTION_Y_POS_OFFSET
+                self.__choose_album_cover_button = ctk.CTkButton(self.__download_song_tab,\
                                                                 font=('Times New Roman',20,"italic"),\
                                                                 text=CHOOSE_ALBUM_COVER_TEXT,\
                                                                 width=ENTRY_WIDGET_WIDTH,\
@@ -222,7 +273,7 @@ class Downloader:
         # Creating download button
         button_icon = ctk.CTkImage(pil.Image.open("Images/red_arrow.png"),\
                                     size=(DOWNLOAD_SONG_BUTTON_SIZE, DOWNLOAD_SONG_BUTTON_SIZE))
-        self.__download_song_button = ctk.CTkButton(self.__root,\
+        self.__download_song_button = ctk.CTkButton(self.__download_song_tab,\
                                                     font=('Times New Roman',30,"italic"),\
                                                     text=DOWNLOAD_SONG_BUTTON_TEXT,\
                                                     fg_color=CHOOSE_ALBUM_COVER_BACKGROUND_COLOR,\
@@ -239,7 +290,7 @@ class Downloader:
         # Creating reset button
         reset_icon = ctk.CTkImage(pil.Image.open("Images/reset_icon.png"),\
                                     size=(DOWNLOAD_SONG_BUTTON_SIZE, DOWNLOAD_SONG_BUTTON_SIZE))
-        self.__reset_button = ctk.CTkButton(self.__root,\
+        self.__reset_button = ctk.CTkButton(self.__download_song_tab,\
                                             font=('Times New Roman',30,"italic"),\
                                             text=RESET_BUTTON_TEXT,\
                                             fg_color=CHOOSE_ALBUM_COVER_BACKGROUND_COLOR,\
@@ -468,6 +519,7 @@ class Downloader:
             album_name = self.__widget_entries[ALBUM_NAME_INDEX].get(),\
             track_position_in_album = self.__widget_entries[ALBUM_TRACK_POSITION_INDEX].get(),\
             song_genre = self.__widget_entries[SONG_GENRE_INDEX].get(),\
+            song_year = self.__widget_entries[SONG_YEAR_INDEX].get(),\
             youtube_url = self.__widget_entries[SONG_YOUTUBE_URL_INDEX].get(),\
             album_cover_image = self.__album_cover_image_file_full_path,\
             return_to_main_window_button = self.__return_to_main_window_button,\
