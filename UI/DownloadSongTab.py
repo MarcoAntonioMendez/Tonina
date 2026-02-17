@@ -443,3 +443,7 @@ class DownloadSongTab:
             return_to_main_window_button = self.__return_to_main_window_button,\
             progress_bar = self.__progress_bar,\
             download_status_label = self.__download_status_label)
+
+
+
+
