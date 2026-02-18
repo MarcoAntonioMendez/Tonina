@@ -7,7 +7,6 @@ import threading
 from UI import downloader
 from UI import MissingMetadataScreen
 from UI import DownloadSongProgressScreen
-from DownloadEngine import mp3_downloader_engine
 
 
 # General Constants
@@ -85,9 +84,6 @@ class DownloadSongTab:
 
         # Savinf the main root
         self.__root = main_root
-
-        # Initializing the downloader_engine
-        self.__downloader_engine = mp3_downloader_engine.Mp3DownloaderEngine()
 
         # Initializing the MissingMetadataScreen in case it's needed.
         self.__missing_metadata_screen = MissingMetadataScreen.MissingMetadataScreen(main_root)
