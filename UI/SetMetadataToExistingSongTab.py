@@ -6,7 +6,10 @@ import os
 import threading
 from UI import downloader
 from UI import MissingMetadataScreen
-from UI import DownloadSongProgressScreen
+
+
+# General constants
+SET_METADATA_TO_EXISTING_SONG_SONG_TAB_NAME = "Set Metadata to an Existing Song"
 
 
 class SetMetadataToExistingSongTab:
@@ -28,12 +31,17 @@ class SetMetadataToExistingSongTab:
 
 
         # Setting the tab where user downloads a song.
-        self.__download_song_tab = tabs.add(DOWNLOAD_SONG_TAB_NAME)
-        self.__download_song_tab_canvas = ctk.CTkCanvas(self.__download_song_tab,
+        self.__set_metadata_to_an_existing_song_tab = tabs.add(SET_METADATA_TO_EXISTING_SONG_SONG_TAB_NAME)
+        self.__set_metadata_to_an_existing_song_tab_canvas = ctk.CTkCanvas(
+                                                        self.__set_metadata_to_an_existing_song_tab,
                                                         width=downloader.WINDOW_WIDTH,
                                                         height=downloader.WINDOW_HEIGHT,
                                                         highlightthickness=0,
                                                         background=downloader.TABS_BACKGROUND_COLOR)
-        self.__download_song_tab_canvas.pack(fill="both", expand=True)
+        self.__set_metadata_to_an_existing_song_tab_canvas.pack(fill="both", expand=True)
 
+
+
+    def set_interface(self):
+        print()
 

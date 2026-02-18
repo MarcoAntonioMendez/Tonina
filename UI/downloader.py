@@ -5,6 +5,7 @@ import logging
 import os
 import threading
 from UI import DownloadSongTab
+from UI import SetMetadataToExistingSongTab
 
 APPLICATION_NAME = "Toniná"
 
@@ -17,7 +18,6 @@ FFMPEG_NOT_INSTALLED_MESSAGE_X_POS = 100
 FFMPEG_NOT_INSTALLED_MESSAGE_Y_POS = 10
 
 
-SET_METADATA_TO_EXISTING_SONG_NAME = "Set Metadata to an Existing Song"
 TAB_SEPARATOR = "🎧"
 TABS_BACKGROUND_COLOR = "#360185"
 TABS_FOREGROUND_COLOR = "#360185"
@@ -66,8 +66,12 @@ class Downloader:
         self.__tabs.add(TAB_SEPARATOR)
         self.__tabs._segmented_button._buttons_dict[TAB_SEPARATOR].configure(state="disabled")
 
-        # Setting the tab where user sets metadata to an existing song
-        self.__set_metadata_to_an_existing_song_tab = self.__tabs.add(SET_METADATA_TO_EXISTING_SONG_NAME)
+
+        # Setting the tab where user downloads a song.
+        self.__set_metadata_to_an_existing_song_tab = SetMetadataToExistingSongTab.SetMetadataToExistingSongTab(
+                                                                    self.__root,
+                                                                    self.__tabs,
+                                                                    self.__original_working_dir)
 
 
 
@@ -126,6 +130,7 @@ class Downloader:
 
     def set_user_interface(self):
         self.__download_song_tab.set_interface()
+        self.__set_metadata_to_an_existing_song_tab.set_interface()
 
 
 
