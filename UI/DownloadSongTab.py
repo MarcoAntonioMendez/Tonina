@@ -5,6 +5,8 @@ import logging
 import os
 import threading
 from UI import downloader
+from UI import MissingMetadataScreen
+from UI import DownloadSongProgressScreen
 from DownloadEngine import mp3_downloader_engine
 
 
@@ -70,40 +72,6 @@ CHOOSE_ALBUM_COVER_FILE_DIALOG_TEXT = "Select an image for the album cover"
 CHOOSE_ALBUM_COVER_FILE_DIALOG_IMAGES_TEXT = "Images"
 
 
-PROGRESS_BAR_POP_UP_TITLE_TEXT = "Downloading..."
-PROGRESS_BAR_POP_UP_WIDTH = 300
-PROGRESS_BAR_POP_UP_HEIGHT = 533
-
-METADATA_MISSING_TEXT = "Some metadata field \n\
-was not entered \n\
-correctly :(, please \n\
-make sure that all of the \n\
-metadata (song's title, \n\
-artist name, cover album, \n\
-etc.) was entered \n\
-in its totality."
-METADATA_MISSING_X_POS = 10
-METADATA_MISSING_Y_POS = 10
-
-
-RETURN_TO_MAIN_WINDOW_BUTTON_TEXT = "Go Back to the Main Screen"
-RETURN_TO_MAIN_WINDOW_BUTTON_X_POS = 17
-RETURN_TO_MAIN_WINDOW_BUTTON_Y_POS = 480
-RETURN_TO_MAIN_WINDOW_BUTTON_DISABLED_BACKGROUND_COLOR = "#0f2933"
-
-
-ALBUM_COVER_IMAGE_FOR_STATUS_SIZE = 150
-ALBUM_COVER_IMAGE_FOR_STATUS_X_POS = 80
-ALBUM_COVER_IMAGE_FOR_STATUS_Y_POS = 20
-STATUS_LABELS_SPACE_BETWEEN = 5
-STATUS_LABELS_WRAP_LENGTH = 250
-SONG_TITLE_FOR_STATUS_X_POS = 20
-SONG_TITLE_FOR_STATUS_Y_POS = 190
-DOWNLOAD_STARTING_STATUS = "Starting the download..."
-PROGRESS_BAR_SPACE_BETWEEN = 50
-DOWNLOAD_STATUS_SPACE_BETWEEN = 10
-
-
 class DownloadSongTab:
     def __init__(self, main_root, tabs, original_working_dir):
         # Initializing list of entry widgets
@@ -120,6 +88,12 @@ class DownloadSongTab:
 
         # Initializing the downloader_engine
         self.__downloader_engine = mp3_downloader_engine.Mp3DownloaderEngine()
+
+        # Initializing the MissingMetadataScreen in case it's needed.
+        self.__missing_metadata_screen = MissingMetadataScreen.MissingMetadataScreen(main_root)
+
+        # Initializing the DownloadSongProgressScreen.
+        self.__dowload_song_progress_screen = DownloadSongProgressScreen.DownloadSongProgressScreen(main_root)
 
         # Setting the tab where user downloads a song.
         self.__download_song_tab = tabs.add(DOWNLOAD_SONG_TAB_NAME)
@@ -250,52 +224,16 @@ class DownloadSongTab:
         os.chdir(self.__original_working_dir)
 
 
-        # Creating a progress bar pop up
-        self.__top = ctk.CTkToplevel()
-        self.__top.title(PROGRESS_BAR_POP_UP_TITLE_TEXT)
-        self.__top.minsize(PROGRESS_BAR_POP_UP_WIDTH,PROGRESS_BAR_POP_UP_HEIGHT)
-        self.__top.maxsize(PROGRESS_BAR_POP_UP_WIDTH,PROGRESS_BAR_POP_UP_HEIGHT)
-        # Setting the size of the progress bar pop up
-        screen_width = self.__top.winfo_screenwidth()
-        screen_height = self.__top.winfo_screenheight()
-        x_pos = int((screen_width - PROGRESS_BAR_POP_UP_WIDTH)/2)
-        y_pos = int((screen_height - PROGRESS_BAR_POP_UP_HEIGHT)/2)
-        self.__top.geometry(f"{PROGRESS_BAR_POP_UP_WIDTH}x{PROGRESS_BAR_POP_UP_HEIGHT}+{x_pos}+{y_pos}")
-
-
-
-        #Creating the progress bar pop up canvas, so elements can be rendered in there.
-        # Setting the background of the progress bar pop up
-        self.__progress_bar_canvas = ctk.CTkCanvas(self.__top,\
-                                                width=PROGRESS_BAR_POP_UP_WIDTH,\
-                                                height=PROGRESS_BAR_POP_UP_HEIGHT,\
-                                                highlightthickness=0)
-        self.__progress_bar_canvas.pack(fill="both", expand=True)
-        background = pil.ImageTk.PhotoImage(pil.Image.open("Images/progress_bar_pop_up_background.png").convert("RGBA"))
-        self.__progress_bar_canvas.create_image(0, 0, anchor="nw", image=background)
-
-
-
-
         # If the user entered the metadata correctly, then the song will start to be downloaded.
         # If some of the metadata is missing, then the software will show a warning message
         if(all_metadata_set):
             # All metadata is fine, starting to download
-            # Setting the thread where the download will run on
-            self.set_download_progress_interface()
-            download_thread = threading.Thread(target=self.download_song)
-            download_thread.start()
+            self.__dowload_song_progress_screen.download_song(
+                album_cover_image_file_full_path = self.__album_cover_image_file_full_path,
+                widget_entries = self.__widget_entries)
         else:
             # Some metadata is missing, inform the user of the issue
-            self.inform_user_some_metadata_is_missing()
-
-
-
-        # Disables the original root and only progress bar pop up stays active
-        self.__top.focus()
-        self.__top.transient(self.__root)
-        self.__top.grab_set()
-        self.__top.wait_window(self.__top)
+            self.__missing_metadata_screen.inform_user_some_metadata_is_missing()
 
 
 
@@ -326,124 +264,6 @@ class DownloadSongTab:
         clipboard_content = event.widget.clipboard_get()
         event.widget.insert(ctk.END, clipboard_content)
         return "break"
-
-
-
-    def inform_user_some_metadata_is_missing(self):
-        self.__progress_bar_canvas.create_text(METADATA_MISSING_X_POS,\
-                                    METADATA_MISSING_Y_POS, anchor="nw",\
-                                    text=METADATA_MISSING_TEXT, font=('Times New Roman',24),\
-                                    fill=TONINA_TITLE_TEXT_COLOR)
-
-
-        # Creating the return to the main window button
-        self.__return_to_main_window_button = ctk.CTkButton(self.__top,\
-                                            font=('Times New Roman',21,"italic"),\
-                                            text=RETURN_TO_MAIN_WINDOW_BUTTON_TEXT,\
-                                            fg_color=CHOOSE_ALBUM_COVER_BACKGROUND_COLOR,\
-                                            text_color=TONINA_TITLE_TEXT_COLOR,\
-                                            border_width=CHOOSE_ALBUM_COVER_BORDER_WIDTH,\
-                                            corner_radius=CHOOSE_ALBUM_COVER_CORNER_RADIUS,\
-                                            border_color=RESET_BUTTON_BORDER_COLOR,\
-                                            command=self.return_to_main_window)
-        self.__return_to_main_window_button.place(x = RETURN_TO_MAIN_WINDOW_BUTTON_X_POS,\
-                                                y = RETURN_TO_MAIN_WINDOW_BUTTON_Y_POS)
-
-
-
-    def return_to_main_window(self):
-        self.__top.destroy()
-        self.__top.update()
-
-
-
-    def set_download_progress_interface(self):
-        # Adding graphical elements to inform the user the status of the download
-        # Adding the album cover of the song being downloaded
-        pil_image = pil.Image.open(self.__album_cover_image_file_full_path)
-        ctk_image = ctk.CTkImage(light_image=pil_image,dark_image=pil_image,\
-                                size=(ALBUM_COVER_IMAGE_FOR_STATUS_SIZE, ALBUM_COVER_IMAGE_FOR_STATUS_SIZE))
-        album_cover_image_for_status = ctk.CTkLabel(self.__top, image=ctk_image, text="")
-        album_cover_image_for_status.place(x = ALBUM_COVER_IMAGE_FOR_STATUS_X_POS,\
-                                            y = ALBUM_COVER_IMAGE_FOR_STATUS_Y_POS)
-
-        # Adding the name of te song being downloaded
-        song_title_for_status = ctk.CTkLabel(self.__top,text=self.__widget_entries[SONG_TITLE_INDEX].get(),\
-                            font=('Times New Roman',19),wraplength=STATUS_LABELS_WRAP_LENGTH,\
-                            fg_color=CHOOSE_ALBUM_COVER_BACKGROUND_COLOR,\
-                            text_color=TONINA_TITLE_TEXT_COLOR)
-        song_title_for_status.place(x = SONG_TITLE_FOR_STATUS_X_POS, y = SONG_TITLE_FOR_STATUS_Y_POS)
-        self.__top.update_idletasks()
-
-        # Adding the name of te song being downloaded
-        song_artist_for_status = ctk.CTkLabel(self.__top,text=self.__widget_entries[ARTIST_NAME_INDEX].get(),\
-                            font=('Times New Roman',19),wraplength=STATUS_LABELS_WRAP_LENGTH,\
-                            fg_color=CHOOSE_ALBUM_COVER_BACKGROUND_COLOR,\
-                            text_color=TONINA_TITLE_TEXT_COLOR)
-        song_artist_for_status.place(x = SONG_TITLE_FOR_STATUS_X_POS,\
-            y = SONG_TITLE_FOR_STATUS_Y_POS + song_title_for_status.winfo_height()\
-            + song_artist_for_status.winfo_height() + STATUS_LABELS_SPACE_BETWEEN)
-        self.__top.update_idletasks()
-
-
-        # Adding the progress bar
-        self.__progress_bar = ctk.CTkProgressBar(self.__top,orientation="horizontal",\
-                                                determinate_speed=6.2,width=250,height=20,\
-                                                progress_color="green")
-        self.__progress_bar.set(0)
-        self.__progress_bar.place(x = SONG_TITLE_FOR_STATUS_X_POS,\
-            y = SONG_TITLE_FOR_STATUS_Y_POS + song_title_for_status.winfo_height()\
-            + song_artist_for_status.winfo_height() + PROGRESS_BAR_SPACE_BETWEEN)
-        self.__top.update_idletasks()
-
-
-
-        # Adding the label that will hold the specif stage in which the download is being carried on.
-        self.__download_status_label = ctk.CTkLabel(self.__top,text=DOWNLOAD_STARTING_STATUS,\
-                            font=('Times New Roman',16),wraplength=STATUS_LABELS_WRAP_LENGTH,\
-                            fg_color=CHOOSE_ALBUM_COVER_BACKGROUND_COLOR,\
-                            text_color=TONINA_TITLE_TEXT_COLOR)
-        self.__download_status_label.place(x = SONG_TITLE_FOR_STATUS_X_POS,\
-            y = SONG_TITLE_FOR_STATUS_Y_POS + song_title_for_status.winfo_height()\
-            + song_artist_for_status.winfo_height() + self.__download_status_label.winfo_height()\
-            + self.__progress_bar.winfo_height() + PROGRESS_BAR_SPACE_BETWEEN\
-            + DOWNLOAD_STATUS_SPACE_BETWEEN)
-        self.__top.update_idletasks()
-
-
-
-        # Creating return to the main window button
-        self.__return_to_main_window_button = ctk.CTkButton(self.__top,\
-                                            font=('Times New Roman',21,"italic"),\
-                                            text=RETURN_TO_MAIN_WINDOW_BUTTON_TEXT,\
-                                            fg_color=RETURN_TO_MAIN_WINDOW_BUTTON_DISABLED_BACKGROUND_COLOR,\
-                                            text_color=TONINA_TITLE_TEXT_COLOR,\
-                                            border_width=CHOOSE_ALBUM_COVER_BORDER_WIDTH,\
-                                            corner_radius=CHOOSE_ALBUM_COVER_CORNER_RADIUS,\
-                                            border_color=RESET_BUTTON_BORDER_COLOR,\
-                                            command=self.return_to_main_window,\
-                                            state=ctk.DISABLED)
-        self.__return_to_main_window_button.place(x = RETURN_TO_MAIN_WINDOW_BUTTON_X_POS,\
-                                                y = RETURN_TO_MAIN_WINDOW_BUTTON_Y_POS)
-        self.__top.update_idletasks()
-
-
-
-    def download_song(self):
-        # Starting the download process
-        self.__downloader_engine.download_song(\
-            song_title = self.__widget_entries[SONG_TITLE_INDEX].get(),\
-            artist_name = self.__widget_entries[ARTIST_NAME_INDEX].get(),\
-            album_name = self.__widget_entries[ALBUM_NAME_INDEX].get(),\
-            track_position_in_album = self.__widget_entries[ALBUM_TRACK_POSITION_INDEX].get(),\
-            song_genre = self.__widget_entries[SONG_GENRE_INDEX].get(),\
-            song_year = self.__widget_entries[SONG_YEAR_INDEX].get(),\
-            youtube_url = self.__widget_entries[SONG_YOUTUBE_URL_INDEX].get(),\
-            album_cover_image = self.__album_cover_image_file_full_path,\
-            return_to_main_window_button = self.__return_to_main_window_button,\
-            progress_bar = self.__progress_bar,\
-            download_status_label = self.__download_status_label)
-
 
 
 

@@ -126,3 +126,9 @@ class Downloader:
 
     def set_user_interface(self):
         self.__download_song_tab.set_interface()
+
+
+
+
+
+
