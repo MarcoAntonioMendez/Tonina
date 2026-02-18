@@ -213,6 +213,7 @@ class SetMetadataToExistingSongTab:
         # Clearing all entries and the album cover image file
         self.__album_cover_image_file_full_path = ""
         self.__choose_album_cover_button.configure(text=CHOOSE_ALBUM_COVER_TEXT)
+        self.__choose_mp3_file_button.configure(text=CHOOSE_MP3_FILE_TEXT)
 
         for entry in self.__widget_entries:
             entry.delete(0, ctk.END)
