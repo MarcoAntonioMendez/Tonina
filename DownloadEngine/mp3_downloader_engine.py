@@ -3,6 +3,7 @@ import os
 import logging
 import customtkinter as ctk
 from pathlib import Path
+from DownloadEngine import metadata_setter
 
 # Constants
 BETA_KEYBOARD = "_beta"
@@ -11,7 +12,7 @@ RETURN_TO_MAIN_WINDOW_BUTTON_ENABLED_BACKGROUND_COLOR = "#59239a"
 
 class Mp3DownloaderEngine:
     def __init__(self):
-        print()
+        self.__metadata_setter = metadata_setter.MetadataSetter()
 
     def download_song(self, song_title: str,
                     artist_name: str,
@@ -68,50 +69,28 @@ class Mp3DownloaderEngine:
 
         # Now that the raw download of the song has finished, it's time to set the metadata.
         logging.warning("Setting up the metadata for: " + filename)
+        #--------------------- Finishing Making the actual download ------------------------------
 
 
-        # Creating command
-        command_to_add_metadata = ""
-
-        # Adding the initial part for using ffmpeg
-        command_to_add_metadata += "ffmpeg -i "
-
-        # Adding the filename of the downloaded file
-        command_to_add_metadata += filename + ".mp3"
-
-        # Adding the album artwork
-        command_to_add_metadata += " -i " + self.__album_cover_image + " -map 0:0 -map 1:0 -id3v2_version 3"
-
-        # Adding the title
-        command_to_add_metadata += " -metadata title=" + "\"" + self.__song_title + "\""
-
-        # Adding the artist
-        command_to_add_metadata += " -metadata album_artist=" + "\"" + self.__artist_name + "\""
-        command_to_add_metadata += " -metadata composer=" + "\"" + self.__artist_name + "\""
-        command_to_add_metadata += " -metadata artist=" + "\"" + self.__artist_name + "\""
-
-        # Adding the album name
-        command_to_add_metadata += " -metadata album=" + "\"" + self.__album_name + "\""
-
-        # Adding the track_number
-        command_to_add_metadata += " -metadata track=" + "\"" + self.__track_position_in_album + "\""
-
-        # Adding the genre
-        command_to_add_metadata += " -metadata genre=" + "\"" + self.__song_genre + "\""
-
-        # Adding the year
-        command_to_add_metadata += " -metadata year=" + "\"" + self.__song_year + "\""
-
-        # Adding the quality and final output filename
-        command_to_add_metadata += " -b:a 320k " + filename.replace(BETA_KEYBOARD, "") + ".mp3"
 
 
+        #--------------------- Setting Metadata ------------------------------
         # Executing the metadata command
         self.__download_status_label.configure(text="Setting metadata...")
-        os.system(command_to_add_metadata)
+        self.__metadata_setter.set_metadata(
+                    song_title = song_title,
+                    artist_name = artist_name,
+                    album_name = album_name,
+                    track_position_in_album = track_position_in_album,
+                    song_genre = song_genre,
+                    song_year = song_year,
+                    album_cover_image = album_cover_image,
+                    directory_where_song_will_be_saved_to = directory_where_song_will_be_saved_to,
+                    filename = filename)
+        #--------------------- Finished Setting Metadata ------------------------------
+        
 
-        # Removing leftover files
-        os.remove(filename+".mp3")
+        
         self.__download_status_label.configure(\
             text="DOWNLOAD FINISHED! The file has been saved in the " + self.__directory_where_song_will_be_saved_to + " folder :D")
         self.__progress_bar.stop()

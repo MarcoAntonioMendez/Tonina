@@ -4,8 +4,10 @@ import subprocess
 import logging
 import os
 import threading
+from pathlib import Path
 from UI import downloader
 from UI import MissingMetadataScreen
+from DownloadEngine import metadata_setter
 
 
 # General constants
@@ -92,6 +94,9 @@ class SetMetadataToExistingSongTab:
 
         # Initializing the MissingMetadataScreen in case it's needed.
         self.__missing_metadata_screen = MissingMetadataScreen.MissingMetadataScreen(main_root)
+
+        # Initializing the metadata setter object
+        self.__metadata_setter = metadata_setter.MetadataSetter()
 
 
         # Setting the tab where user downloads a song.
@@ -261,7 +266,28 @@ class SetMetadataToExistingSongTab:
 
 
     def check_if_everything_is_good_to_set_metadata_to_a_song(self):
-        print()
+        # Checking all entries, mp3 file and album cover image
+        all_metadata_set = self.has_all_metadta_been_set()
+        os.chdir(self.__original_working_dir)
+
+
+        # If the user entered the metadata correctly, then the metadata will be assigned to the song.
+        # If some of the metadata is missing, then the software will show a warning message
+        if(all_metadata_set):
+            # All metadata is fine
+            self.__metadata_setter.set_metadata_without_beta_word(
+                    song_title = self.__widget_entries[SONG_TITLE_INDEX].get(),
+                    artist_name = self.__widget_entries[ARTIST_NAME_INDEX].get(),
+                    album_name = self.__widget_entries[ALBUM_NAME_INDEX].get(),
+                    track_position_in_album = self.__widget_entries[ALBUM_TRACK_POSITION_INDEX].get(),
+                    song_genre = self.__widget_entries[SONG_GENRE_INDEX].get(),
+                    song_year = self.__widget_entries[SONG_YEAR_INDEX].get(),
+                    album_cover_image = self.__album_cover_image_file_full_path,
+                    directory_where_song_will_be_saved_to = Path(self.__mp3_file_full_path).parent,
+                    filename = Path(self.__mp3_file_full_path).name)
+        else:
+            # Some metadata is missing, inform the user of the issue
+            self.__missing_metadata_screen.inform_user_some_metadata_is_missing()
 
 
 
@@ -273,6 +299,22 @@ class SetMetadataToExistingSongTab:
 
         for entry in self.__widget_entries:
             entry.delete(0, ctk.END)
+
+
+
+    def has_all_metadta_been_set(self):
+        all_metadata_set = True
+        for entry in self.__widget_entries:
+            if(entry.get() == ""):
+                all_metadata_set = False
+
+        if(self.__album_cover_image_file_full_path == ""):
+            all_metadata_set = False
+
+        if(self.__mp3_file_full_path == ""):
+            all_metadata_set = False
+
+        return all_metadata_set
 
 
 
